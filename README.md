@@ -2,44 +2,91 @@
 
 Este paquete permite establecer la conexión mediante Bluetooth Low Energy (BLE) con smartwatches (compatible con la app **BioWatch** y pulsómetros estándar) en dispositivos Android/Quest, y capturar y registrar sus datos fisiológicos y de movimiento de forma configurable.
 
-## Características
+---
 
-- **Conexión BLE nativa en Android/Quest**: Comunicación de baja latencia usando llamadas directas de JNI (Java Native Interface) a la API de Android.
-- **Estructura unificada de datos**: Todos los datos se parsean en la estructura `BLEData` y se exponen mediante el evento C# `BLEConnector.OnDataReceived`.
-- **Guardado configurable (`BLEDataSaver`)**: Permite elegir qué variables guardar y a qué intervalo (en segundos) en un archivo CSV dinámico.
+## 🚀 Instalación en Unity
+
+Puedes instalar este paquete directamente desde GitHub utilizando el **Unity Package Manager (UPM)**:
+
+1. En Unity, abre la ventana del gestor de paquetes en **Window** > **Package Manager**.
+2. Haz clic en el botón **`+`** situado en la esquina superior izquierda.
+3. Selecciona la opción **Add package from git URL...**
+4. Pega la siguiente dirección y haz clic en **Add**:
+   ```text
+   https://github.com/Arnau10a/unity-biofeedback-vr-core.git
+   ```
+
+Unity importará y compilará el paquete automáticamente dentro de tu proyecto.
 
 ---
 
-## Estructura de Datos (`BLEData`)
+## 📋 Estructura de Datos (`BLEData`)
 
-El evento `BLEConnector.OnDataReceived` proporciona una estructura con los siguientes campos:
+Cuando el dispositivo está conectado, los datos del smartwatch se propagan a través del evento C# `BLEConnector.OnDataReceived` utilizando la estructura `BLEData`:
 
-- `timestamp` (float): Tiempo de Unity (`Time.time`).
-- `heartRate` (int): Pulsaciones por minuto (BPM).
-- `acceleration` (Vector3): Datos del acelerómetro (X, Y, Z).
-- `gyroscope` (Vector3): Datos del giroscopio (X, Y, Z).
-- `pressure` (float): Presión barométrica (hPa).
-- `steps` (int): Contador de pasos.
-- `light` (float): Nivel de luz ambiental (lx).
-- `temperature` (float): Temperatura del dispositivo (°C).
-- `battery` (float): Porcentaje de batería del smartwatch (%).
-- `rotation` (Quaternion): Cuaternión de rotación del reloj.
-
----
-
-## Cómo Integrarlo en un Proyecto Nuevo
-
-1. **Copiar la carpeta**: Copia la carpeta `com.arnau.biofeedbackvr` y pégala dentro del directorio `Packages/` de tu proyecto de Unity.
-2. **Detección automática**: Unity detectará automáticamente el paquete y lo compilará bajo el namespace por defecto.
-3. **Uso de Prefabs**: Puedes arrastrar el prefab de conexión rápida si necesitas una UI visual, o bien añadir los scripts directamente a tus propios GameObjects.
+```csharp
+[System.Serializable]
+public struct BLEData
+{
+    public float timestamp;        // Tiempo de Unity (Time.time) en el que se recibió
+    public int heartRate;          // Pulsaciones por minuto (BPM)
+    public Vector3 acceleration;   // Acelerómetro (ejes X, Y, Z)
+    public Vector3 gyroscope;      // Giroscopio (ejes X, Y, Z)
+    public float pressure;         // Presión barométrica (hPa)
+    public int steps;              // Contador de pasos acumulado
+    public float light;            // Luminosidad ambiental (lx)
+    public float temperature;      // Temperatura interna (°C)
+    public float battery;          // Porcentaje de batería (%)
+    public Quaternion rotation;    // Cuaternión de rotación del dispositivo
+}
+```
 
 ---
 
-## Configuración del Guardado de Datos (`BLEDataSaver`)
+## 💾 Configuración del Guardado de Datos (`BLEDataSaver`)
 
-1. Añade el script `BLEDataSaver` a cualquier GameObject activo de tu escena.
-2. En el **Inspector de Unity**, configura los parámetros:
-   - **Save Interval**: El intervalo de guardado en segundos (ej. `1.0` para guardar una muestra cada segundo). Si se establece en `0` o menor, guardará los datos cada vez que llegue un nuevo paquete desde el reloj.
-   - **Sub Folder**: Carpeta destino dentro de `Application.persistentDataPath` (por defecto `BLEDataLogs`).
-   - **Variables a guardar**: Marca o desmarca las casillas correspondientes (Heart Rate, Acceleration, etc.) para incluirlas o excluirlas del archivo CSV.
-3. Al iniciar la aplicación y recibir datos, se creará un archivo CSV con el nombre formateado como `BLE_Session_YYYYMMDD_HHMMSS.csv` en la ruta correspondiente de tu dispositivo o PC (en Android, suele ser `Android/data/com.TuCompañia.TuJuego/files/BLEDataLogs/`). El archivo CSV contendrá únicamente las columnas de los campos seleccionados en el Inspector de forma dinámica.
+El script `BLEDataSaver` permite registrar en un archivo CSV los datos fisiológicos recibidos de manera selectiva y en intervalos de tiempo personalizados.
+
+### Pasos para usarlo:
+1. Agrega el componente `BLEDataSaver` a cualquier GameObject activo de tu escena.
+2. Configura los parámetros en el **Inspector**:
+   - **Save Interval**: Frecuencia de registro en segundos (ej. `1.0` para guardar una muestra cada segundo). Pon `0` o un número menor si quieres almacenar los datos en tiempo real cada vez que el reloj envíe un paquete.
+   - **Sub Folder**: Nombre del subdirectorio (por defecto `BLEDataLogs`).
+   - **Variables a guardar**: Casillas de verificación para activar/desactivar el registro de variables concretas (Heart Rate, Acceleration, etc.).
+3. Los logs se almacenarán en formato CSV en la ruta `Application.persistentDataPath` del dispositivo (en Android y Quest suele ser `Android/data/com.TuCompañia.TuJuego/files/BLEDataLogs/`).
+4. **El archivo CSV se genera de forma dinámica**, conteniendo únicamente las columnas que se han seleccionado en el Inspector.
+
+---
+
+## 🛠️ Integración por código
+
+Si quieres recibir las lecturas en tus propios scripts para activar mecánicas de Biofeedback dentro de la VR:
+
+```csharp
+using UnityEngine;
+
+public class MiControladorBiofeedback : MonoBehaviour
+{
+    void OnEnable()
+    {
+        // Suscribirse al evento para recibir los datos procesados
+        BLEConnector.OnDataReceived += OnDataReceived;
+    }
+
+    void OnDisable()
+    {
+        // Desuscribirse del evento al desactivar el objeto
+        BLEConnector.OnDataReceived -= OnDataReceived;
+    }
+
+    private void OnDataReceived(BLEData data)
+    {
+        Debug.Log($"Ritmo cardíaco actual: {data.heartRate} BPM");
+        
+        if (data.heartRate > 100)
+        {
+            // Ejecutar lógica del juego si el usuario se estresa
+        }
+    }
+}
+```
