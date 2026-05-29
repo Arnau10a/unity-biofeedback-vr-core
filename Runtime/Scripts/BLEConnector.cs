@@ -92,6 +92,55 @@ public class BLEConnector : MonoBehaviour
         }
     }
 
+    public void SendFrequencyCommand(int intervalMs)
+    {
+        if (bluetoothGatt == null)
+        {
+            Log("No hay conexión activa para enviar comandos.");
+            return;
+        }
+
+        try
+        {
+            Log($"Enviando comando de frecuencia: {intervalMs}ms...");
+            using (AndroidJavaClass uuidClass = new AndroidJavaClass("java.util.UUID"))
+            using (AndroidJavaObject serviceUuid = uuidClass.CallStatic<AndroidJavaObject>("fromString", "12345678-1234-5678-1234-56789abcdef0"))
+            using (AndroidJavaObject charUuid = uuidClass.CallStatic<AndroidJavaObject>("fromString", "12345678-1234-5678-1234-56789abcdef1"))
+            {
+                using (AndroidJavaObject service = bluetoothGatt.Call<AndroidJavaObject>("getService", serviceUuid))
+                {
+                    if (service != null)
+                    {
+                        using (AndroidJavaObject characteristic = service.Call<AndroidJavaObject>("getCharacteristic", charUuid))
+                        {
+                            if (characteristic != null)
+                            {
+                                string command = $"FREQ:{intervalMs}";
+                                byte[] commandBytes = System.Text.Encoding.UTF8.GetBytes(command);
+
+                                characteristic.Call<bool>("setValue", commandBytes);
+                                bool success = bluetoothGatt.Call<bool>("writeCharacteristic", characteristic);
+                                Log($"Comando enviado '{command}'. Éxito: {success}");
+                            }
+                            else
+                            {
+                                Log("Característica de configuración no encontrada.");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log("Servicio de configuración no encontrado.");
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log($"Error al enviar comando: {e.Message}");
+        }
+    }
+
     // Callbacks llamados desde Java
 
     public void OnGattConnected(string mac)
