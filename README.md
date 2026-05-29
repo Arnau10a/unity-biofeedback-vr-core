@@ -20,6 +20,17 @@ Unity importará y compilará el paquete automáticamente dentro de tu proyecto.
 
 ---
 
+## 📦 Uso Rápido: Prefab Todo-En-Uno
+
+El paquete incluye un prefab pre-configurado llamado `Biofeedback_UI_System` que agrupa toda la funcionalidad (conexión, interfaz de usuario Full HD, persistencia CSV y ejemplo de consumo de datos).
+
+Para usarlo:
+1. Navega en tu proyecto de Unity a `Packages` > `Biofeedback VR Core` > `Prefabs`.
+2. Arrastra el prefab **`Biofeedback_UI_System`** directamente a tu escena.
+3. ¡Listo! Ya tienes la interfaz de escaneo, conexión, visualizador de sensores y guardado CSV listo para ejecutarse.
+
+---
+
 ## 📋 Estructura de Datos (`BLEData`)
 
 Cuando el dispositivo está conectado, los datos del smartwatch se propagan a través del evento C# `BLEConnector.OnDataReceived` utilizando la estructura `BLEData`:
@@ -45,22 +56,28 @@ public struct BLEData
 
 ## 💾 Configuración del Guardado de Datos (`BLEDataSaver`)
 
-El script `BLEDataSaver` permite registrar en un archivo CSV los datos fisiológicos recibidos de manera selectiva y en intervalos de tiempo personalizados.
+El script `BLEDataSaver` (incluido en el objeto `BLE_Scanner` del Prefab) permite registrar en un archivo CSV los datos fisiológicos recibidos de manera selectiva.
 
-### Pasos para usarlo:
-1. Agrega el componente `BLEDataSaver` a cualquier GameObject activo de tu escena.
-2. Configura los parámetros en el **Inspector**:
-   - **Save Interval**: Frecuencia de registro en segundos (ej. `1.0` para guardar una muestra cada segundo). Pon `0` o un número menor si quieres almacenar los datos en tiempo real cada vez que el reloj envíe un paquete.
-   - **Sub Folder**: Nombre del subdirectorio (por defecto `BLEDataLogs`).
-   - **Variables a guardar**: Casillas de verificación para activar/desactivar el registro de variables concretas (Heart Rate, Acceleration, etc.).
-3. Los logs se almacenarán en formato CSV en la ruta `Application.persistentDataPath` del dispositivo (en Android y Quest suele ser `Android/data/com.TuCompañia.TuJuego/files/BLEDataLogs/`).
-4. **El archivo CSV se genera de forma dinámica**, conteniendo únicamente las columnas que se han seleccionado en el Inspector.
+### Parámetros en el Inspector:
+- **Save Interval**: Frecuencia de registro en segundos (ej. `1.0` para guardar una muestra cada segundo). Pon `0` o menos si quieres almacenar los datos en tiempo real por cada paquete.
+- **Sub Folder**: Nombre del subdirectorio (por defecto `BLEDataLogs` en `Application.persistentDataPath`).
+- **Variables a guardar**: Casillas para activar/desactivar el registro de variables concretas.
 
 ---
 
-## 🛠️ Integración por código
+## ⚡ Control de Frecuencia del Smartwatch
 
-Si quieres recibir las lecturas en tus propios scripts para activar mecánicas de Biofeedback dentro de la VR:
+Puedes ordenar al smartwatch que cambie la tasa de envío de los datos a nivel de sensor físico llamando a:
+```csharp
+// Cambia el intervalo a 500 ms (el reloj enviará datos cada medio segundo)
+bleConnector.SendFrequencyCommand(500);
+```
+
+---
+
+## 🛠️ Integración por código (Consumidor)
+
+Si quieres recibir las lecturas en tus propios scripts (como se simula en el objeto `MyGameControllerExample` del Prefab):
 
 ```csharp
 using UnityEngine;
@@ -69,24 +86,17 @@ public class MiControladorBiofeedback : MonoBehaviour
 {
     void OnEnable()
     {
-        // Suscribirse al evento para recibir los datos procesados
         BLEConnector.OnDataReceived += OnDataReceived;
     }
 
     void OnDisable()
     {
-        // Desuscribirse del evento al desactivar el objeto
         BLEConnector.OnDataReceived -= OnDataReceived;
     }
 
     private void OnDataReceived(BLEData data)
     {
-        Debug.Log($"Ritmo cardíaco actual: {data.heartRate} BPM");
-        
-        if (data.heartRate > 100)
-        {
-            // Ejecutar lógica del juego si el usuario se estresa
-        }
+        Debug.Log($"Ritmo cardíaco recibido: {data.heartRate} BPM");
     }
 }
 ```
