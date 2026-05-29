@@ -1,0 +1,11 @@
+{
+  "name": "com.arnau.biofeedbackvr",
+  "version": "1.0.0",
+  "displayName": "Biofeedback VR Core",
+  "description": "Bluetooth LE connection and smartwatch data capture package for VR biofeedback.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Arnau"
+  },
+  "dependencies": {}
+}

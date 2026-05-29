@@ -1,0 +1,5 @@
+.DS_Store
+*.suo
+*.user
+*.userprefs
+# NOTA: No ignorar archivos .meta, son necesarios para que Unity mantenga las referencias del paquete.
