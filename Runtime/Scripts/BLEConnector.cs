@@ -179,9 +179,9 @@ public class BLEConnector : MonoBehaviour
                 int bpm = ParseHeartRate(dataStr);
                 if (hrText != null)
                 {
-                    hrText.text = $"<color=#ff4444><size=120>❤ {bpm}</size></color>\n<size=30>BPM</size>";
+                    hrText.text = $"<color=#ff4444><size=120>HR: {bpm}</size></color>\n<size=30>BPM</size>";
                 }
-                Debug.Log($"[BLEConnector] ❤ Pulso estandar: {bpm} BPM");
+                Debug.Log($"[BLEConnector] HR: {bpm} BPM");
 
                 // Disparar evento
                 BLEData data = new BLEData();
@@ -210,7 +210,7 @@ public class BLEConnector : MonoBehaviour
                     float qz = float.Parse(sensorVals[14], System.Globalization.CultureInfo.InvariantCulture);
                     float qw = float.Parse(sensorVals[15], System.Globalization.CultureInfo.InvariantCulture);
 
-                    if (hrText != null) hrText.text = $"<color=#ff4444><size=120>❤ {pulso}</size></color>\n<size=30>BPM</size>";
+                    if (hrText != null) hrText.text = $"<color=#ff4444><size=120>HR: {pulso}</size></color>\n<size=30>BPM</size>";
                     
                     if (motionText != null) 
                         motionText.text = $"<size=40><color=#aaddff>ACCEL:</color> {accX}, {accY}, {accZ}\n" +
@@ -222,7 +222,7 @@ public class BLEConnector : MonoBehaviour
                                          $"<color=#aaaaaa>PRESION:</color> {presion} hPa</size>";
                     
                     if (stepsText != null) 
-                        stepsText.text = $"<size=50><color=#ffffaa>👣 {pasos} PASOS</color></size>";
+                        stepsText.text = $"<size=50><color=#ffffaa>Steps: {pasos} PASOS</color></size>";
 
                     // Disparar evento
                     BLEData data = new BLEData();
@@ -255,7 +255,7 @@ public class BLEConnector : MonoBehaviour
                 {
                     // Fallback para version anterior si fuera necesario
                     string pulso = sensorVals[0];
-                    if (hrText != null) hrText.text = $"<color=#ff4444><size=120>❤ {pulso}</size></color>\n<size=30>BPM (Legacy)</size>";
+                    if (hrText != null) hrText.text = $"<color=#ff4444><size=120>HR: {pulso}</size></color>\n<size=30>BPM (Legacy)</size>";
 
                     BLEData data = new BLEData();
                     data.timestamp = Time.time;

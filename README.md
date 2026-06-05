@@ -75,9 +75,9 @@ bleConnector.SendFrequencyCommand(500);
 
 ---
 
-## 🛠️ Integración por código (Consumidor)
+## 🛠️ Integración por código (Ejemplo)
 
-Si quieres recibir las lecturas en tus propios scripts (como se simula en el objeto `MyGameControllerExample` del Prefab):
+El paquete incluye un ejemplo de consumo de datos. Puedes importarlo a tu carpeta de Assets mediante el **Unity Package Manager** (clic en el paquete e importar la muestra **Ejemplo de Consumo de Datos**), o escribir tu propio script suscribiéndote al evento:
 
 ```csharp
 using UnityEngine;
@@ -100,3 +100,14 @@ public class MiControladorBiofeedback : MonoBehaviour
     }
 }
 ```
+
+---
+
+## ⌚ Aplicación del Smartwatch (Companion App)
+
+El código fuente de la aplicación para el reloj inteligente (desarrollada para WearOS / Android) está incluido en este repositorio bajo la carpeta [WearSensorBroadcaster~](file:///c:/Users/arnau/BiofeedbackVR_Core/Packages/com.arnau.biofeedbackvr/WearSensorBroadcaster~).
+
+Esta carpeta es ignorada por Unity al importar el paquete (gracias al sufijo `~`), manteniendo tu proyecto de Unity limpio de archivos ajenos, pero está disponible en Git para abrirse y compilarse desde Android Studio.
+
+> [!TIP]
+> Puedes descargar el archivo `.apk` precompilado de la aplicación del smartwatch desde la sección de **Releases** de este repositorio de GitHub para instalarlo directamente.
